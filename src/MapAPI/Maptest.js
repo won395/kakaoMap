@@ -44,7 +44,8 @@ const KakaoMap = () => {
 
       // 인포윈도우 (마커 클릭 시 표시될 정보창)
       const infowindow = new window.kakao.maps.InfoWindow({
-        content: '<div style="padding:5px;font-size:12px;">후라보노보노</div>',
+        content: '<div style="padding:5px;font-size:12px;">후라보노보노</div>' +
+        '<a href="https://cnsu.ac.kr/main.do" style={{ color: "blue" }} target="_blank" rel="noreferrer">충남도립대학교</a>',
         removable: true,
       });
 
@@ -59,7 +60,7 @@ const KakaoMap = () => {
         addMarker(latLng); // 클릭한 위치에 마커 추가
       });
 
-      // 맵 dbgud 지정
+      // 맵 유형 지정
       const mapTypeControl = new window.kakao.maps.MapTypeControl();
       map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
 
