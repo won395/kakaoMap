@@ -45,6 +45,7 @@ const KakaoMap = () => {
       // 인포윈도우 (마커 클릭 시 표시될 정보창)
       const infowindow = new window.kakao.maps.InfoWindow({
         content: '<div style="padding:5px;font-size:12px;">후라보노보노</div>',
+        removable: true,
       });
 
       // 마커 클릭 이벤트
@@ -112,6 +113,7 @@ const KakaoMap = () => {
     const markerOptions = {
       position,
       draggable: true,
+      removable: true,
     };
 
     if (isCustom) {
@@ -128,6 +130,7 @@ const KakaoMap = () => {
     // 인포윈도우 생성
     const infowindow = new window.kakao.maps.InfoWindow({
       content: `<div style="padding:5px;font-size:12px;">클릭한 위치: ${position.getLat()}, ${position.getLng()}</div>`,
+      removable: true,
     });
   
     // 마커 클릭 이벤트 추가
