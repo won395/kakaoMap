@@ -105,15 +105,24 @@ const KakaoMap = () => {
   }, [MapTypeId]);
 
 
-  const addMarker = (position) => {
+  const addMarker = (position, isCustom = false) => {
     const map = mapRef.current;
     if (!map) return;
+
+    const markerOptions = {
+      position,
+      draggable: true,
+    };
+
+    if (isCustom) {
+      markerOptions.image = new window.kakao.maps.MarkerImage(
+        "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png",
+        new kakao.maps.Size(24, 35)
+      );
+    }
   
     // 마커 생성
-    const marker = new window.kakao.maps.Marker({
-      position, // 클릭한 위치 좌표
-      draggable: true // 마커가 드래그 가능하도록 설정합니다
-    });
+    const marker = new window.kakao.maps.Marker(markerOptions);
     marker.setMap(map);
   
     // 인포윈도우 생성
@@ -136,9 +145,8 @@ const KakaoMap = () => {
       if (marker) marker.setMap(null); // 지도에서 마커 제거
       if (infowindow) infowindow.close(); // 인포윈도우 닫기
     });
-  
-    // 마커 상태 초기화
-    setMarkers([]);
+
+    setMarkers([]); // 마커 상태 초기화
   };
 
   const getInfo = () => {
@@ -191,6 +199,9 @@ const KakaoMap = () => {
       <h1>지도 범위</h1>
       <button id="resetBoundsBtn" onClick={resetMapBounds}>맵핑 범위 재설정</button>
       <button onClick={clearMarkers}>모든 마커 제거</button>
+
+      <h1>커스텀 마커</h1>
+      <button onClick={() => addMarker(new kakao.maps.LatLng(36.437, 126.803), true)}>커스텀 마커 추가</button>
       </div>
 
 
@@ -204,6 +215,5 @@ const KakaoMap = () => {
     
   );
 };
-
 
 export default KakaoMap;
