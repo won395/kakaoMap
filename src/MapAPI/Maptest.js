@@ -7,7 +7,7 @@ const KakaoMap = () => {
   const mapRef = useRef(null); // 지도 객체를 참조할 ref 생성
   const [MapTypeId, setMapTypeId] = useState(null); // 지도 타입 상태 관리
   const [info, setInfo] = useState(""); // 지도 정보를 저장할 상태
-
+  const [markers, setMarkers] = useState([]);
 
   useEffect(() => {
     if (!window.kakao || !window.kakao.maps) {
@@ -18,8 +18,7 @@ const KakaoMap = () => {
     // Kakao 지도 API가 로드된 후에 실행
     if (window.kakao) {
 
-      // 지도 컨테이너 엘리먼트를 찾기
-      const container = document.getElementById('map');
+      const container = document.getElementById('map'); // 지도 컨테이너 엘리먼트를 찾기
       
       // 지도 옵션 설정
       const options = {
@@ -33,12 +32,15 @@ const KakaoMap = () => {
 
       console.log("Kakao Map Version:", window.kakao.maps.VERSION); //버전 체크(뺼 기능)
 
-      const markerPosition = new window.kakao.maps.LatLng(36.436988, 126.802021); // 마커 위치
+      const markerPosition = new window.kakao.maps.LatLng(36.436988, 126.802021);
+      const markerPosition1 = new window.kakao.maps.LatLng(36.459105, 126.802004); // 마커 위치
       
-       const marker = new window.kakao.maps.Marker({ position: markerPosition }); // 마커 생성
+      const marker = new window.kakao.maps.Marker({ position: markerPosition }); // 마커 생성
+      const marker1 = new window.kakao.maps.Marker({ position: markerPosition1 }); // 마커1 생성
 
       // 지도에 마커 표시
       marker.setMap(map);
+      marker1.setMap(map);
 
       // 인포윈도우 (마커 클릭 시 표시될 정보창)
       const infowindow = new window.kakao.maps.InfoWindow({
@@ -46,8 +48,14 @@ const KakaoMap = () => {
       });
 
       // 마커 클릭 이벤트
-      window.kakao.maps.event.addListener(marker, 'click', () => {
+      window.kakao.maps.event.addListener(marker, "click", () => {
         infowindow.open(map, marker);
+      });
+
+      // 지도 클릭 이벤트 추가
+      window.kakao.maps.event.addListener(map, "click", (mouseEvent) => {
+        const latLng = mouseEvent.latLng; // 클릭한 위치의 좌표
+        addMarker(latLng); // 클릭한 위치에 마커 추가
       });
 
       // 맵 dbgud 지정
@@ -88,7 +96,7 @@ const KakaoMap = () => {
           map.addOverlayMapTypeId(kakao.maps.MapTypeId.USE_DISTRICT); // 지적편집도 정보
           break;
         default:
-          map.setMapTypeId(kakao.maps.MapTypeId.ROADMAP); // 기본 지도 정보
+          map.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADMAP); // 기본 지도 정보
           break;
       }
     } catch (error) {
@@ -96,6 +104,42 @@ const KakaoMap = () => {
     }
   }, [MapTypeId]);
 
+
+  const addMarker = (position) => {
+    const map = mapRef.current;
+    if (!map) return;
+  
+    // 마커 생성
+    const marker = new window.kakao.maps.Marker({
+      position, // 클릭한 위치 좌표
+      draggable: true // 마커가 드래그 가능하도록 설정합니다
+    });
+    marker.setMap(map);
+  
+    // 인포윈도우 생성
+    const infowindow = new window.kakao.maps.InfoWindow({
+      content: `<div style="padding:5px;font-size:12px;">클릭한 위치: ${position.getLat()}, ${position.getLng()}</div>`,
+    });
+  
+    // 마커 클릭 이벤트 추가
+    window.kakao.maps.event.addListener(marker, "click", () => {
+      infowindow.open(map, marker);
+    });
+  
+    // 상태에 마커와 인포윈도우 저장
+    setMarkers((prevMarkers) => [...prevMarkers, { marker, infowindow }]);
+  };
+  
+  const clearMarkers = () => {
+    // 저장된 모든 마커와 인포윈도우 삭제
+    markers.forEach(({ marker, infowindow }) => {
+      if (marker) marker.setMap(null); // 지도에서 마커 제거
+      if (infowindow) infowindow.close(); // 인포윈도우 닫기
+    });
+  
+    // 마커 상태 초기화
+    setMarkers([]);
+  };
 
   const getInfo = () => {
     const map = mapRef.current;
@@ -124,7 +168,7 @@ const KakaoMap = () => {
 
     const bounds = new kakao.maps.LatLngBounds();
     bounds.extend(new kakao.maps.LatLng(36.43698897735751, 126.80202130837696)); // 충도대 좌표 추가
-    bounds.extend(new kakao.maps.LatLng(36.43798897735751, 126.80302130837696)); // 추가 영역 좌표
+    bounds.extend(new kakao.maps.LatLng(36.459105780044275, 126.80200414891813)); // 추가 영역 좌표
 
     map.setBounds(bounds); // 지도의 영역을 설정
   };
@@ -134,18 +178,20 @@ const KakaoMap = () => {
       <h1>Kakao 지도</h1>
       <div id="map" style={{ marginLeft: '200px', width: '800px', height: '700px', margin: "0 auto" }}></div>
 
-      <h1>타입 변경</h1> <div style={{ textAlign: 'center', marginTop: '10px' }}>
+      <div style={{ textAlign: 'center', marginTop: '10px' }}>
+      <h1>타입 변경</h1>
+      <button onClick={() => setMapTypeId("ROADMAP")} >기본지도 보기</button>{" "}
       <button onClick={() => setMapTypeId("TRAFFIC")} >교통 정보 보기</button>{" "}
       <button onClick={() => setMapTypeId("ROADVIEW")} >로드뷰 보기</button>{" "}
       <button onClick={() => setMapTypeId("TERRAIN")} >지형 정보 보기</button>{" "}
       <button onClick={() => setMapTypeId("BICYCLE")} >자전거 도로 정보 보기</button>{" "}
       <button onClick={() => setMapTypeId("USE_DISTRICT")} >지적 편집도 보기</button><br/>
-      </div>
+      
 
       <h1>지도 범위</h1>
-      <button id="resetBoundsBtn" onClick={resetMapBounds}>
-          지도 범위 재설정
-        </button>
+      <button id="resetBoundsBtn" onClick={resetMapBounds}>맵핑 범위 재설정</button>
+      <button onClick={clearMarkers}>모든 마커 제거</button>
+      </div>
 
 
       <h1>맵 정보 가저오기</h1>
@@ -154,7 +200,6 @@ const KakaoMap = () => {
         dangerouslySetInnerHTML={{
           __html: info,
         }} />
-
     </div>
     
   );
