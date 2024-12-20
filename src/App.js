@@ -1,7 +1,8 @@
 import './App.css';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
-import KakaoMap from './MapAPI/KakaoMap';
-import BasicMap from './MapAPI/BasicMap';
+
+import MapCreate from './MapAPI/MapCreate';
+import MapTest from './MapAPI/Maptest';
 
 function App() {
   return (
@@ -10,9 +11,8 @@ function App() {
           <About />
           <Routes>
             <Route path={"/"} element={<Home />} />
-            
-            <Route path="/KakaoMap" element={<KakaoMap />} />
-            <Route path="/BasicMap" element={<BasicMap />} />
+            <Route path="/create" element={<MapCreate/>} />
+            <Route path="/test" element={<MapTest/>} />
           </Routes>
         </BrowserRouter>
     </div>
@@ -31,8 +31,8 @@ function Home() {
   return(
     <div>
       <h4>지도 Test</h4>
-      <Link to="/KakaoMap">지도</Link><br/>
-      <Link to="/BasicMap">지도01</Link><br/>
+      <Link to="/create">지도1</Link><br/>
+      <Link to="/test">테스트</Link><br/>
     </div>
   )
 }
